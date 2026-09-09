@@ -10,10 +10,16 @@ import { createServer as createViteServer } from 'vite';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
-const allowedOrigins = (process.env.FRONTEND_ORIGINS || 'http://localhost:3000')
+const configuredOrigins = (process.env.FRONTEND_ORIGINS || '')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://froz-q8p9.onrender.com',
+  ...configuredOrigins,
+];
 
 function requireEnv(name: 'DATABASE_URL' | 'JWT_SECRET'): string {
   const value = process.env[name];
