@@ -9,23 +9,23 @@ import { Pool } from 'pg';
 import { createServer as createViteServer } from 'vite';
 
 const app = express();
-const PORT = 3000;
-const DATABASE_URL = process.env.DATABASE_URL;
-const JWT_SECRET = process.env.JWT_SECRET;
+const PORT = Number(process.env.PORT) || 3000;
 const allowedOrigins = (process.env.FRONTEND_ORIGINS || 'http://localhost:3000')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-if (!DATABASE_URL) {
-  console.error('DATABASE_URL is required. Set it in the environment before starting FROZ.');
-  process.exit(1);
+function requireEnv(name: 'DATABASE_URL' | 'JWT_SECRET'): string {
+  const value = process.env[name];
+  if (!value) {
+    console.error(`${name} is required. Set it in the environment before starting FROZ.`);
+    process.exit(1);
+  }
+  return value;
 }
 
-if (!JWT_SECRET) {
-  console.error('JWT_SECRET is required. Set it in the environment before starting FROZ.');
-  process.exit(1);
-}
+const DATABASE_URL = requireEnv('DATABASE_URL');
+const JWT_SECRET = requireEnv('JWT_SECRET');
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -645,10 +645,16 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*all', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+    const publicPath = path.join(process.cwd(), 'dist', 'public');
+    app.use(express.static(publicPath, { index: 'index.html' }));
+    app.use((req, res, next) => {
+      if (req.path.startsWith('/api/') || req.path.startsWith('/assets/')) {
+        return next();
+      }
+      if (req.method === 'GET') {
+        return res.sendFile(path.join(publicPath, 'index.html'));
+      }
+      return next();
     });
   }
 
