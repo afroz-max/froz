@@ -659,7 +659,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`FROZ server running on http://localhost:${PORT}`);
+    console.log(`FROZ server running on 0.0.0.0:${PORT}`);
   });
 }
 
