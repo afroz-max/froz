@@ -1,0 +1,6 @@
+{
+  "name": "FROZ",
+  "description": "Find nearby people who can provide useful services or skills, or offer your own skills.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
